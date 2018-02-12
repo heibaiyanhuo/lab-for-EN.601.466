@@ -16,6 +16,7 @@ class Classifier(object):
 
         self._abbrvs = set()
         self._titles = set()
+        self._initialize_set()
 
         self._features = []
         self._labels = []
@@ -44,7 +45,6 @@ class Classifier(object):
         # Rule No.3, if the next word is some specific punctuation mark, it should not be an EOS.
         ret.append(-1 if re.match(r'^[.,?!;]', arr[2]) else 0)
         # Rule
-        ret.append(-1 if re.match(r'^[A-Z]$', arr[0]) else 0)
         # Rule No.4, if the prev word is a common title, is should not an EOS.
         ret.append(-1 if arr[0] in self._titles else 0)
         # Rule No.5, if the prev word is a common abbr, is should not an EOS.
@@ -56,14 +56,14 @@ class Classifier(object):
         return ret
 
     def _train(self):
-        self._clf.fit(self._features[:20000], self._labels[:20000])
+        self._clf.fit(self._features, self._labels)
 
     def _test(self):
         cc = 0
-        for i in range(20000, 30000):
+        for i in range(0, 45000):
             if self._clf.predict([self._features[i]])[0] == self._labels[i]:
                 cc += 1
-        print(cc/10000.0)
+        print(cc/45000.0)
 
 
 if __name__ == '__main__':
