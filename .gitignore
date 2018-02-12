@@ -1,1 +1,4 @@
 venv/
+.vscode/
+classes/
+.DS_Store
