@@ -1,3 +1,4 @@
+import sys
 import re
 
 CS466 = '../../'
@@ -16,12 +17,6 @@ RULE_TOTAL = [0] * 10
 
 def initialize():
     global CS466, ABBREVS, TITLES, UPN, SI, TIME
-    # with open(CS466 + 'classes/titles') as f:
-    #     for line in f:
-    #         RW.add(line.strip())
-    # with open(CS466 + 'classes/sentence_internal') as f:
-    #     for line in f:
-    #         RW.add(line.strip())
     with open(CS466 + 'classes/abbrevs') as f:
         for line in f:
             ABBREVS.add(line.strip())
@@ -83,7 +78,7 @@ def ret(id, given_class, true_class, rule, line=''):
 
 
 initialize()
-classifier('sent.data.train')
+classifier(sys.argv[1])
 
 print('Correctness: {}/{}, {}'.format(CORRECT, TOTAL, CORRECT/TOTAL))
 print(RULE_CORRECT)

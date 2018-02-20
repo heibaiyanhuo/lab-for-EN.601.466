@@ -1,5 +1,5 @@
+import sys
 import re
-import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import SGDClassifier
 
@@ -11,7 +11,7 @@ ORIGINAL_LABELS = list()
 COMPRESS_DATA = list()
 COMPRESS_LABELS = list()
 
-
+VECTORIZER = TfidfVectorizer(min_df=1, analyzer='char', lowercase=False)
 
 def initialize():
     with open(CS466 + 'segment/segment.data.train') as f:
@@ -32,18 +32,45 @@ def initialize():
                 line_ptr = idx
 
 def training():
-    vectorizer = TfidfVectorizer(min_df=1, analyzer='char', lowercase=False)
-    features = vectorizer.fit_transform(COMPRESS_DATA)
-    clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-3, random_state=42, max_iter=5, tol=None).fit(features[:800], COMPRESS_LABELS[:800])
+    features = VECTORIZER.fit_transform(COMPRESS_DATA)
+    clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-3, random_state=42, max_iter=5, tol=None).fit(features, COMPRESS_LABELS)
     return clf, features
+
+
+def test(file, clf):
+    raw_data = []
+    raw_labels = []
+    correct = 0
+    total = 0
+    with open(CS466 + file) as f:
+        segment_begin_idx = 0
+        segment = ''
+        for segment_end_idx, line in enumerate(f):
+            label_match = re.match(r'^\S+', line)
+            raw_data.append(line)
+            raw_labels.append(label_match.group())
+            if raw_labels[-1] == '#BLANK#':
+                if segment_begin_idx != segment_end_idx:
+                    features = VECTORIZER.transform([segment])
+                    segment = ''
+                    predicted = clf.predict(features)
+                    for i in range(segment_begin_idx, segment_end_idx):
+                        if predicted[0] == raw_labels[i]:
+                            print('.. {}\t{}'.format(predicted[0], raw_data[i]))
+                            correct += 1
+                        else:
+                            print('XX {}\t{}'.format(predicted[0], raw_data[i]))
+                        total += 1
+                    segment_begin_idx = segment_end_idx + 1
+                else:
+                    segment_begin_idx += 1
+            else:
+                segment += line[label_match.span()[1]:]
+                if raw_labels[segment_begin_idx] == '#BLANK#':
+                    segment_begin_idx = segment_end_idx
+    print('Correctness: {}/{}, {}'.format(correct, total, correct/total))
 
 initialize()
 clf, features = training()
-# print(len(ORIGINAL_DATA))
-# print(len(COMPRESS_DATA))
-# print(len(COMPRESS_LABELS))
-# print(COMPRESS_DATA[:3])
-# print(COMPRESS_LABELS[:3])
-predicted = clf.predict(features[800:])
-print(np.mean(predicted == COMPRESS_LABELS[800:]))
-# print(predicted)
+
+test(sys.argv[1], clf)
