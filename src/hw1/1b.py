@@ -1,3 +1,10 @@
+'''
+The basic idea for this classifier is to directly transform each segment into a vector.
+There are many features we want to keep when we transform the segment into a vector like term frequencies, whitespaces ratio, non-English words ratio, etc.
+Therefore, here I select a special vectorizer TfidVectorizer provided by scikit, which can help us keep these features when transformation.
+Then, we use SVM to train our classifier.
+'''
+
 import sys
 import re
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -26,7 +33,7 @@ def initialize():
                     for l in ORIGINAL_DATA[line_ptr:idx]:
                         info += l
                     COMPRESS_DATA.append(info)
-                    COMPRESS_LABELS.append(ORIGINAL_LABELS[line_ptr])
+                    COMPRESS_LABELS.append('PTEXT' if ORIGINAL_LABELS[line_ptr] == 'ITEM' else ORIGINAL_LABELS[line_ptr])
                 line_ptr = idx
             elif ORIGINAL_LABELS[line_ptr] == '#BLANK#':
                 line_ptr = idx
@@ -55,7 +62,7 @@ def test(file, clf):
                     segment = ''
                     predicted = clf.predict(features)
                     for i in range(segment_begin_idx, segment_end_idx):
-                        if predicted[0] == raw_labels[i]:
+                        if predicted[0] == raw_labels[i] or (predicted == 'PTEXT' and (raw_labels[i] == 'ADDRESS' or raw_labels[i] == 'ITEM')):
                             print('.. {}\t{}'.format(predicted[0], raw_data[i]))
                             correct += 1
                         else:

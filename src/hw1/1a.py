@@ -1,3 +1,7 @@
+'''
+Rule-based classifier.
+'''
+
 import sys
 import re
 
@@ -69,8 +73,6 @@ def ret(id, given_class, true_class, rule, line=''):
         CORRECT += 1
         RULE_CORRECT[int(rule) - 1] += 1
     else:
-        # pass
-        # print(line)
         print('Error in {}, given class is {}, true class is {}, rule {}'.format(id, given_class, true_class, rule))
     TOTAL += 1
     RULE_TOTAL[int(rule) - 1] += 1
