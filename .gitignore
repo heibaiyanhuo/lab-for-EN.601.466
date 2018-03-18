@@ -2,5 +2,6 @@ venv/
 .vscode/
 .idea/
 classes/
+src/hw2/assets/
 .DS_Store
 __pycache__
