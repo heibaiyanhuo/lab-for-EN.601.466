@@ -19,15 +19,15 @@ def get_links(base_url, html):
 
 def extract_information(url, content, writer=sys.stdout):
     for phone_info in RegType.PHONE.findall(content):
-        info = '({}; PHONE; {})\n'.format(url, phone_info)
+        info = '({}; PHONE; {})\n'.format(url, phone_info.strip())
         writer.write(info)
 
     for email_info in RegType.EMAIL.findall(content):
-        info = '({}; EMAIL; {})\n'.format(url, email_info)
+        info = '({}; EMAIL; {})\n'.format(url, email_info.strip())
         writer.write(info)
 
     for address_info in RegType.ADDRESS.findall(content):
-        info = '({}; CITY; {})\n'.format(url, address_info)
+        info = '({}; CITY; {})\n'.format(url, re.sub('\s+', ' ', address_info).strip())
         writer.write(info)
 
 
